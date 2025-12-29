@@ -86,6 +86,10 @@ def save_balance_sheet(payload: Optional[Any] = None, name: Optional[str] = None
 		doc.title = payload_obj.get("title") or f"Balance Sheet {frappe.utils.now()}"
 
 	# set header fields
+	doc.fiscal_year = payload_obj.get("fiscal_year")
+	doc.currency = payload_obj.get("currency") or "VND"
+	doc.circular_template = payload_obj.get("circular_template")
+
 	# generated_at: accept ISO-8601 (vd: 2025-12-29T00:00:00Z)
 	generated_at = normalized.get("timestamp")
 	try:
@@ -144,3 +148,43 @@ def get_balance_sheet(name: str, include_raw_json: int = 0):
 	if not int(include_raw_json):
 		data.pop('raw_json', None)
 	return data
+
+
+@frappe.whitelist(allow_guest=False)
+def get_balance_sheet_by_filters(fiscal_year: Optional[str] = None, circular_template: Optional[str] = None):
+	"""Tìm Balance Sheet theo năm tài chính và mẫu thông tư.
+	
+	Trả về Balance Sheet mới nhất khớp với filters.
+	"""
+	filters = {}
+	if fiscal_year:
+		filters["fiscal_year"] = fiscal_year
+	if circular_template:
+		filters["circular_template"] = circular_template
+	
+	# Tìm doc mới nhất
+	docs = frappe.get_all(
+		"Balance Sheet",
+		filters=filters,
+		fields=["name", "title", "fiscal_year", "currency", "circular_template", "generated_at"],
+		order_by="generated_at desc",
+		limit=1
+	)
+	
+	if not docs:
+		return {"success": False, "message": "Không tìm thấy bảng cân đối kế toán phù hợp"}
+	
+	# Lấy full doc với items
+	doc = frappe.get_doc("Balance Sheet", docs[0].name)
+	data = doc.as_dict()
+	
+	# Parse raw_json để trả về dạng frontend cần
+	try:
+		if data.get("raw_json"):
+			parsed = json.loads(data["raw_json"])
+			data["parsed_data"] = parsed.get("data", {})
+	except Exception:
+		pass
+	
+	data.pop("raw_json", None)
+	return {"success": True, "data": data}

@@ -13,6 +13,29 @@ if (typeof window !== 'undefined') {
 	} else {
 		console.warn('[custom_app] jQuery not found on window/frappe');
 	}
+
+	// Helper function: Get CSRF token from multiple sources
+	window.getCSRFToken = function() {
+		// 1) Try window.frappe.csrf_token (standard Frappe)
+		if (window.frappe && window.frappe.csrf_token) {
+			return window.frappe.csrf_token;
+		}
+		// 2) Try window.csrf_token (legacy/fallback)
+		if (window.csrf_token) {
+			return window.csrf_token;
+		}
+		// 3) Try reading from cookie 'csrf_token'
+		const cookies = document.cookie.split(';');
+		for (let cookie of cookies) {
+			const [key, value] = cookie.trim().split('=');
+			if (key === 'csrf_token') {
+				return decodeURIComponent(value);
+			}
+		}
+		console.warn('[custom_app] CSRF token not found!');
+		return '';
+	};
+	console.log('[custom_app] getCSRFToken helper registered');
 }
 
 const app = createApp(App);

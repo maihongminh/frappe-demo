@@ -6,6 +6,42 @@
 			</button>
 			<h2 class="mb-4">Bảng cân đối kế toán</h2>
 			
+			<!-- Form filters: fiscal year, currency, circular template -->
+			<div class="filters-section mb-3">
+				<div class="row g-3">
+					<div class="col-md-3">
+						<label for="fiscalYear" class="form-label">Năm tài chính</label>
+						<select id="fiscalYear" class="form-select" v-model="fiscalYear" :disabled="isEditing">
+							<option value="2023">2023</option>
+							<option value="2024">2024</option>
+							<option value="2025">2025</option>
+							<option value="2026">2026</option>
+						</select>
+					</div>
+					<div class="col-md-3">
+						<label for="currency" class="form-label">Loại tiền tệ</label>
+						<select id="currency" class="form-select" v-model="currency" :disabled="isEditing">
+							<option value="VND">Việt Nam Đồng</option>
+							<option value="USD">USD</option>
+							<option value="EUR">EUR</option>
+						</select>
+					</div>
+					<div class="col-md-3">
+						<label for="circularTemplate" class="form-label">Mẫu thông tư</label>
+						<select id="circularTemplate" class="form-select" v-model="circularTemplate" :disabled="isEditing">
+							<option value="200">Thông tư 200</option>
+							<option value="133">Thông tư 133</option>
+							<option value="other">Khác</option>
+						</select>
+					</div>
+					<div class="col-md-3 d-flex align-items-end">
+						<button class="btn btn-info w-100" @click="loadBalanceSheet" :disabled="isEditing">
+							Tải dữ liệu
+						</button>
+					</div>
+				</div>
+			</div>
+
 			<div class="toolbar mb-3">
 				<button 
 					v-if="!isEditing" 
@@ -145,6 +181,9 @@ export default {
 	emits: ['back'],
 	data() {
 		return {
+			fiscalYear: '2025',
+			currency: 'VND',
+			circularTemplate: '200',
 			isEditing: false,
 			assetRows: [
 				{ id: 'a1', label: 'I. Tiền và các khoản tương đương tiền', code: '110', note: '', startYear: 0, endYear: 0, indent: 0, parentId: null },
@@ -201,6 +240,46 @@ export default {
 		};
 	},
 	methods: {
+		async loadBalanceSheet() {
+			try {
+				const csrfToken = window.getCSRFToken ? window.getCSRFToken() : (window.csrf_token || '');
+				const response = await fetch(
+					`/api/method/custom_app.customdemo.doctype.balance_sheet.balance_sheet.get_balance_sheet_by_filters?fiscal_year=${this.fiscalYear}&circular_template=${this.circularTemplate}`,
+					{
+						method: 'GET',
+						headers: {
+							'Content-Type': 'application/json',
+							'X-Frappe-CSRF-Token': csrfToken,
+						},
+						credentials: 'include',
+					}
+				);
+				const result = await response.json();
+				
+				if (result.message && result.message.success) {
+					const data = result.message.data;
+					const parsedData = data.parsed_data;
+					
+					if (parsedData) {
+						// Load assets and equity from parsed data
+						if (parsedData.assets && Array.isArray(parsedData.assets)) {
+							this.assetRows = parsedData.assets;
+						}
+						if (parsedData.equity && Array.isArray(parsedData.equity)) {
+							this.equityRows = parsedData.equity;
+						}
+						alert(`Đã tải dữ liệu: ${data.title}`);
+					} else {
+						alert('Không tìm thấy dữ liệu trong bảng cân đối này.');
+					}
+				} else {
+					alert(result.message?.message || 'Không tìm thấy bảng cân đối kế toán phù hợp');
+				}
+			} catch (err) {
+				console.error('Error loading balance sheet:', err);
+				alert('Lỗi khi tải dữ liệu. Vui lòng xem Console.');
+			}
+		},
 		enableEdit() {
 			this.isEditing = true;
 			// Backup current data
@@ -212,6 +291,10 @@ export default {
 		async saveChanges() {
 			// Chuyển data thành JSON
 			const jsonData = {
+				title: `Bảng cân đối kế toán ${this.fiscalYear} - ${this.circularTemplate}`,
+				fiscal_year: this.fiscalYear,
+				currency: this.currency,
+				circular_template: this.circularTemplate,
 				timestamp: new Date().toISOString(),
 				data: {
 					assets: this.assetRows,
@@ -225,13 +308,15 @@ export default {
 
 			// 2) Gửi data JSON đó lên API Frappe để backend lưu DB
 			try {
+				const csrfToken = window.getCSRFToken ? window.getCSRFToken() : (window.csrf_token || '');
 				const response = await fetch('/api/method/custom_app.customdemo.doctype.balance_sheet.balance_sheet.save_balance_sheet', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						'X-Frappe-CSRF-Token': window.csrf_token || '',
+						'X-Frappe-CSRF-Token': csrfToken,
 					},
-					body: JSON.stringify({ payload: jsonData }),
+					credentials: 'include',
+					body: JSON.stringify({ payload: JSON.stringify(jsonData) }),
 				});
 				const data = await response.json();
 				if (!(response.ok && data.message && data.message.success)) {

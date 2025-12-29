@@ -139,12 +139,14 @@ export default {
 			this.loading = true;
 
 			try {
+				const csrfToken = window.getCSRFToken ? window.getCSRFToken() : (window.csrf_token || '');
 				const response = await fetch('/api/method/custom_app.customdemo.doctype.customer.customer.get_customer', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						'X-Frappe-CSRF-Token': window.csrf_token || '',
+						'X-Frappe-CSRF-Token': csrfToken,
 					},
+					credentials: 'include',
 					body: JSON.stringify({ name: this.customerName }),
 				});
 
@@ -196,12 +198,14 @@ export default {
 			this.submitting = true;
 
 			try {
+				const csrfToken = window.getCSRFToken ? window.getCSRFToken() : (window.csrf_token || '');
 				const response = await fetch('/api/method/custom_app.customdemo.doctype.customer.customer.update_customer', {
 					method: 'POST',
 					headers: {
 						'Content-Type': 'application/json',
-						'X-Frappe-CSRF-Token': window.csrf_token || '',
+						'X-Frappe-CSRF-Token': csrfToken,
 					},
+					credentials: 'include',
 					body: JSON.stringify(payload),
 				});
 

@@ -124,17 +124,30 @@ export default {
 			this.currentView = 'home';
 		},
 		go(href) {
+			// Remember where the user came from so "Back" can return to the same home route
+			// (in this app, home can be served at `/`, `/index`, or `/vue_demo`).
+			if (typeof window !== 'undefined') {
+				const current = `${window.location.pathname || ''}${window.location.search || ''}`;
+				const isGoingToFeature = href.startsWith('/feature');
+				const isCurrentlyHome =
+					window.location.pathname === '/' ||
+					window.location.pathname === '/index' ||
+					(window.location.pathname || '').startsWith('/vue_demo');
+
+				// Only overwrite return target when leaving home for a feature.
+				if (isGoingToFeature && isCurrentlyHome) {
+					sessionStorage.setItem('vue_demo:return_to', current || '/vue_demo');
+				}
+			}
 			window.location.href = href;
 		},
 		handleBack() {
 			if (typeof window !== 'undefined') {
 				const path = window.location.pathname || '';
-				if (path.startsWith('/feature1') || path.startsWith('/feature1_edit')) {
-					this.go('/vue_demo');
-					return;
-				}
-				if (path.startsWith('/feature2')) {
-					this.go('/vue_demo');
+				const returnTo = sessionStorage.getItem('vue_demo:return_to');
+
+				if (path.startsWith('/feature1') || path.startsWith('/feature1_edit') || path.startsWith('/feature2')) {
+					this.go(returnTo || '/vue_demo');
 					return;
 				}
 			}

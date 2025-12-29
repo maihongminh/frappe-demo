@@ -6,6 +6,9 @@
   "engine": "InnoDB",
   "field_order": [
     "title",
+    "fiscal_year",
+    "currency",
+    "circular_template",
     "report_date",
     "generated_at",
     "raw_json",
@@ -18,6 +21,26 @@
       "in_list_view": 1,
       "label": "Title",
       "reqd": 1
+    },
+    {
+      "fieldname": "fiscal_year",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Năm tài chính",
+      "reqd": 0
+    },
+    {
+      "fieldname": "currency",
+      "fieldtype": "Data",
+      "label": "Loại tiền tệ",
+      "default": "VND",
+      "reqd": 0
+    },
+    {
+      "fieldname": "circular_template",
+      "fieldtype": "Data",
+      "label": "Mẫu thông tư",
+      "reqd": 0
     },
     {
       "fieldname": "report_date",
