@@ -209,7 +209,7 @@ export default {
 				equityRows: JSON.parse(JSON.stringify(this.equityRows)),
 			};
 		},
-		saveChanges() {
+		async saveChanges() {
 			// Chuyển data thành JSON
 			const jsonData = {
 				timestamp: new Date().toISOString(),
@@ -219,11 +219,32 @@ export default {
 				}
 			};
 
-			// Log JSON ra console
-			console.log('Balance Sheet JSON:', JSON.stringify(jsonData, null, 2));
+			// 1) Vẫn trả ra chuỗi JSON (log/alert) như yêu cầu
+			const jsonString = JSON.stringify(jsonData, null, 2);
+			console.log('Balance Sheet JSON:', jsonString);
 
-			// Hiển thị JSON trong alert (tùy chọn)
-			alert('Đã lưu thành công!\n\nJSON data đã được log ra Console (F12)');
+			// 2) Gửi data JSON đó lên API Frappe để backend lưu DB
+			try {
+				const response = await fetch('/api/method/custom_app.customdemo.doctype.balance_sheet.balance_sheet.save_balance_sheet', {
+					method: 'POST',
+					headers: {
+						'Content-Type': 'application/json',
+						'X-Frappe-CSRF-Token': window.csrf_token || '',
+					},
+					body: JSON.stringify({ payload: jsonData }),
+				});
+				const data = await response.json();
+				if (!(response.ok && data.message && data.message.success)) {
+					console.error('Save Balance Sheet failed:', data);
+					alert('Lưu JSON thành công (log console) nhưng lưu DB thất bại. Vui lòng xem Console/Network.');
+				} else {
+					// thành công -> trả docname để tiện trace
+					alert(`Đã lưu thành công!\n\nDocname: ${data.message.name}\n\nJSON đã được log ra Console (F12)`);
+				}
+			} catch (err) {
+				console.error('Error calling save_balance_sheet API:', err);
+				alert('Lưu JSON thành công (log console) nhưng gọi API lưu DB bị lỗi.');
+			}
 
 			// Tắt chế độ edit
 			this.isEditing = false;

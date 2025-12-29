@@ -1,0 +1,86 @@
+{
+  "actions": [],
+  "allow_rename": 0,
+  "creation": "2025-12-29 00:00:00.000000",
+  "doctype": "DocType",
+  "editable_grid": 1,
+  "engine": "InnoDB",
+  "field_order": [
+    "section",
+    "source_id",
+    "source_parent_id",
+    "label",
+    "code",
+    "note",
+    "start_year",
+    "end_year",
+    "indent"
+  ],
+  "fields": [
+    {
+      "fieldname": "section",
+      "fieldtype": "Select",
+      "in_list_view": 1,
+      "label": "Section",
+      "options": "Asset\nEquity",
+      "reqd": 1
+    },
+    {
+      "fieldname": "source_id",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Source ID"
+    },
+    {
+      "fieldname": "source_parent_id",
+      "fieldtype": "Data",
+      "in_list_view": 0,
+      "label": "Source Parent ID"
+    },
+    {
+      "fieldname": "label",
+      "fieldtype": "Data",
+      "in_list_view": 1,
+      "label": "Label",
+      "reqd": 1
+    },
+    {
+      "fieldname": "code",
+      "fieldtype": "Data",
+      "label": "Code"
+    },
+    {
+      "fieldname": "note",
+      "fieldtype": "Data",
+      "label": "Note"
+    },
+    {
+      "fieldname": "start_year",
+      "fieldtype": "Float",
+      "label": "Start Year"
+    },
+    {
+      "fieldname": "end_year",
+      "fieldtype": "Float",
+      "label": "End Year"
+    },
+    {
+      "fieldname": "indent",
+      "fieldtype": "Int",
+      "label": "Indent"
+    }
+  ],
+  "istable": 1,
+  "index_web_pages_for_search": 0,
+  "links": [],
+  "modified": "2025-12-29 00:00:00.000000",
+  "modified_by": "Administrator",
+  "module": "customdemo",
+  "name": "Balance Sheet Item",
+  "owner": "Administrator",
+  "permissions": [],
+  "sort_field": "modified",
+  "sort_order": "DESC",
+  "states": [],
+  "track_changes": 1
+}

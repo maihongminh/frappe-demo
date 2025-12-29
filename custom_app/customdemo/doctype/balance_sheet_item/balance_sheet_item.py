@@ -1,5 +1,5 @@
 from frappe.model.document import Document
 
 
-class BalanceSheetReport(Document):
+class BalanceSheetItem(Document):
 	pass

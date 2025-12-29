@@ -5,17 +5,25 @@
   "doctype": "DocType",
   "engine": "InnoDB",
   "field_order": [
-    "report_name",
+    "title",
+    "report_date",
     "generated_at",
-    "raw_json"
+    "raw_json",
+    "items"
   ],
   "fields": [
     {
-      "fieldname": "report_name",
+      "fieldname": "title",
       "fieldtype": "Data",
-      "label": "Report Name",
-      "reqd": 1,
-      "in_list_view": 1
+      "in_list_view": 1,
+      "label": "Title",
+      "reqd": 1
+    },
+    {
+      "fieldname": "report_date",
+      "fieldtype": "Date",
+      "in_list_view": 1,
+      "label": "Report Date"
     },
     {
       "fieldname": "generated_at",
@@ -26,6 +34,13 @@
       "fieldname": "raw_json",
       "fieldtype": "Long Text",
       "label": "Raw JSON"
+    },
+    {
+      "fieldname": "items",
+      "fieldtype": "Table",
+      "label": "Items",
+      "options": "Balance Sheet Item",
+      "reqd": 0
     }
   ],
   "index_web_pages_for_search": 0,
@@ -33,7 +48,7 @@
   "modified": "2025-12-29 00:00:00.000000",
   "modified_by": "Administrator",
   "module": "customdemo",
-  "name": "Balance Sheet Report",
+  "name": "Balance Sheet",
   "owner": "Administrator",
   "permissions": [
     {
