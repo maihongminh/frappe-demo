@@ -22,7 +22,7 @@
       "fieldtype": "Select",
       "in_list_view": 1,
       "label": "Section",
-      "options": "Asset\nEquity",
+      "options": "Asset\nEquity\nRevenue\nExpense\nOther\nOperating\nInvesting\nFinancing",
       "reqd": 1
     },
     {

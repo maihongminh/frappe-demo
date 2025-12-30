@@ -8,7 +8,7 @@
     "title",
     "fiscal_year",
     "currency",
-    "circular_template",
+    "report_type",
     "report_date",
     "generated_at",
     "raw_json",
@@ -37,10 +37,12 @@
       "reqd": 0
     },
     {
-      "fieldname": "circular_template",
-      "fieldtype": "Data",
-      "label": "Mẫu thông tư",
-      "reqd": 0
+      "fieldname": "report_type",
+      "fieldtype": "Link",
+      "in_list_view": 1,
+      "label": "Loại báo cáo",
+      "options": "Report Type",
+      "reqd": 1
     },
     {
       "fieldname": "report_date",
